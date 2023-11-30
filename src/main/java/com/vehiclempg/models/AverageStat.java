@@ -1,5 +1,8 @@
 package com.vehiclempg.models;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document(collection = "AverageStat")
 public class AverageStat {
 
     private String make;

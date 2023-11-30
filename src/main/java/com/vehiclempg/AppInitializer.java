@@ -1,11 +1,13 @@
 package com.vehiclempg;
 
-import com.vehiclempg.models.Vehicle;
-import com.vehiclempg.repositories.VehicleRepository;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvParser;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import com.vehiclempg.models.Vehicle;
+import com.vehiclempg.repositories.VehicleRepository;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +15,6 @@ import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletException;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -25,14 +25,19 @@ public class AppInitializer implements ServletContextInitializer {
 
     static Logger log = LogManager.getLogger(AppInitializer.class.getName());
 
-    @Autowired
     private VehicleRepository repository;
 
-    @Autowired
-    MongoTemplate mongoTemplate;
+    private MongoTemplate mongoTemplate;
+
+    public AppInitializer(VehicleRepository repository, MongoTemplate mongoTemplate)
+    {
+        this.repository = repository;
+        this.mongoTemplate = mongoTemplate;
+    }
 
     @Override
-    public void onStartup(ServletContext servletContext) throws ServletException {
+    public void onStartup(ServletContext servletContext) throws ServletException
+    {
 
         if (mongoTemplate.getCollection("vehicle").countDocuments() > 0) {
             // we assume the app was previously initialized already

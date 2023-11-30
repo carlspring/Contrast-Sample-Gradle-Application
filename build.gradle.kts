@@ -1,3 +1,6 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
 plugins {
     java
     `maven-publish`
@@ -20,42 +23,34 @@ springBoot {
     buildInfo()
 }
 
-//dependencies {
-//    compile("org.springframework.boot:spring-boot-starter-web") {
-//        exclude module: "spring-boot-starter-tomcat"
-//    }
-//    compile("org.springframework.boot:spring-boot-starter-jetty")
-//    compile("org.springframework.boot:spring-boot-starter-actuator")
-//    testCompile("junit:junit")
-//}
+configurations {
+    compileOnly {
+        extendsFrom(configurations.annotationProcessor.get())
+    }
+}
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-data-mongodb:3.2.0")
-    implementation("org.springframework.boot:spring-boot-starter-data-rest:3.2.0")
-    implementation("org.springframework.boot:spring-boot-starter-jersey:3.2.0")
-    implementation("org.springframework.boot:spring-boot-starter-jetty:3.2.0")
-    implementation("org.springframework.boot:spring-boot-starter-web:3.2.0")
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
+    implementation("org.springframework.boot:spring-boot-starter-data-rest")
+    implementation("org.springframework.boot:spring-boot-starter-web")
 //    implementation("org.springframework.boot:spring-boot-starter-log4j:1.3.8.RELEASE")
     implementation("org.apache.logging.log4j:log4j-api:2.22.0")
     runtimeOnly("org.apache.logging.log4j:log4j-core:2.22.0")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.16.0")
-
-    // Add testcontainers
-    testImplementation("org.testcontainers:testcontainers:1.19.3")
-    testImplementation("org.testcontainers:junit-jupiter:1.19.3")
-    testImplementation("org.testcontainers:mongodb:1.19.3")
-
     compileOnly("jakarta.servlet:jakarta.servlet-api:6.0.0")
 
-    testImplementation("org.springframework.boot:spring-boot-starter-test:3.2.0")
+    // Test dependencies
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.boot:spring-boot-testcontainers")
+    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.testcontainers:mongodb")
 
-    testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc:3.0.1")
-    testImplementation("io.rest-assured:rest-assured:5.3.2")
-    testImplementation("io.rest-assured:spring-mock-mvc:5.3.2")
-//    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
+    testImplementation("io.rest-assured:rest-assured")
+    testImplementation("io.rest-assured:spring-mock-mvc")
 }
 
 //apply plugin: "com.contrastsecurity.contrastplugin"
@@ -71,3 +66,15 @@ dependencies {
 //    serverName = "serverNameHere"
 //    minSeverity = "Medium"
 //}
+
+tasks {
+    withType<Test> {
+        useJUnitPlatform()
+        testLogging {
+            showStandardStreams = true
+            showStackTraces = true
+            exceptionFormat = TestExceptionFormat.SHORT
+            events(TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.FAILED)
+        }
+    }
+}

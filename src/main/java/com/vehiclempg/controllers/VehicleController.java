@@ -1,6 +1,5 @@
 package com.vehiclempg.controllers;
 
-
 import com.vehiclempg.models.AverageStat;
 import com.vehiclempg.models.Vehicle;
 import com.vehiclempg.services.VehicleService;
@@ -22,7 +21,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.sort;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @RestController

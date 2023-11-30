@@ -1,30 +1,19 @@
 package com.vehiclempg;
 
-import com.mongodb.client.MongoClientFactory;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.vehiclempg.config.MongoDBTestContainerConfig;
+import com.vehiclempg.controllers.VehicleController;
 import com.vehiclempg.models.Vehicle;
 import com.vehiclempg.repositories.VehicleRepository;
-import io.restassured.RestAssured;
 import org.apache.http.HttpStatus;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-// import org.springframework.boot.test.IntegrationTest;
-// import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Arrays;
 import java.util.List;
@@ -34,28 +23,8 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 
-import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-
-//@RunWith(SpringJUnit4ClassRunner.class)
-////@SpringApplicationConfiguration(classes = Application.class)
-//@WebAppConfiguration
-
-//@ContextConfiguration(classes = MongoDBTestContainerConfig.class)
-@SpringBootTest(classes = {Application.class, AppInitializer.class})
-@WebAppConfiguration
-@DataMongoTest
-@Testcontainers
-@EnableMongoRepositories
-
+@SpringBootTest(classes = ApplicationTest.class)
 public class VehicleControllerTests {
-
-    // Define a Docker container for MongoDB using Testcontainers
-    @Container
-//    private static final GenericContainer<?> mongoContainer =new GenericContainer<>("mongo:latest").withExposedPorts(27017);
-    public static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:latest").withExposedPorts(27017);
-
 
     @Autowired
     VehicleRepository vehicleRepository;
@@ -66,50 +35,10 @@ public class VehicleControllerTests {
     @Value("${local.server.port:9950}")
     int port;
 
-    static String mongoDbHost = "localhost";
-
-    static int mongoDbPort = 27017;
-
-    static MongoClient mongoClient;
-
-
-    @BeforeClass
-    public static void setUpMongoDb() {
-        // Start the MongoDB container
-        mongoDBContainer.start();
-
-        // Get the MongoDB container's host and port
-        mongoDbHost = mongoDBContainer.getHost();
-        mongoDbPort = mongoDBContainer.getFirstMappedPort();
-
-        // Set up the MongoDB client to connect to the container
-        // MongoClient mongoClient = MongoClients.create(String.format("mongodb://%s:%d", containerHost, containerPort));
-
-        // Set the MongoDB client in the factory
-        // MongoClientFactory.setMongoClient(mongoClient);
-
-        mongoDBContainer.start();
-
-        System.setProperty("mongodb.container.host", mongoDbHost);
-        System.setProperty("mongodb.container.port", String.valueOf(mongoDbPort));
-
-        mongoClient = MongoClients.create(String.format("mongodb://%s:%d", mongoDbHost, mongoDbPort));
-    }
-
-//    private void setUpMongoDb()
-//    {
-//        // Get the MongoDB container's host and port
-//        String containerHost = mongoDBContainer.getHost();
-//        Integer containerPort = mongoDBContainer.getFirstMappedPort();
-//
-//        // Set up the MongoDB client to connect to the container
-//        mongoClient = MongoClients.create(String.format("mongodb://%s:%d", containerHost, containerPort));
-//    }
+    MockMvc mockMvc;
 
     @Before
-    public void setUp() {
-//        setUpMongoDb();
-
+    public void before(ApplicationContext context) {
         // this should be in @BeforeClass but vehicleRepository cannot be in a static method
         vehicleRepository.deleteAll();
 
@@ -122,7 +51,7 @@ public class VehicleControllerTests {
         vehicleRepository.saveAll(vehicles);
 
         // RestAssured setup
-        RestAssured.port = port;
+        mockMvc = MockMvcBuilders.standaloneSetup(context.getBeansOfType(VehicleController.class)).build();
     }
 
     @After
@@ -130,8 +59,6 @@ public class VehicleControllerTests {
         // remove all test vehicles
         // this should be in @AfterClass but vehicleRepository cannot be in a static method
         vehicleRepository.deleteAll();
-
-        mongoClient.close();
     }
 
     @Test
@@ -139,9 +66,7 @@ public class VehicleControllerTests {
         // delete all to see status code
         vehicleRepository.deleteAll();
 
-        when().get("/vehicles/all").
-                                           then().
-                                                         statusCode(HttpStatus.SC_NO_CONTENT);
+        when().get("/vehicles/all").then().statusCode(HttpStatus.SC_NO_CONTENT);
     }
 
     @Test
