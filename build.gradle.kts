@@ -53,19 +53,16 @@ dependencies {
     testImplementation("io.rest-assured:spring-mock-mvc")
 }
 
-//apply plugin: "com.contrastsecurity.contrastplugin"
-//
-//
-//contrastConfiguration {
-//    username = "username"
-//    apiKey = "asdf"
-//    serviceKey = "asdf"
-//    apiUrl = "http://localhost:19080/Contrast/api"
-//    orgUuid = "1234-1234-1234-1234"
-//    appName = "appNameHere"
-//    serverName = "serverNameHere"
-//    minSeverity = "Medium"
-//}
+contrastConfiguration {
+    username = "username"
+    apiKey = "asdf"
+    serviceKey = "asdf"
+    apiUrl = "http://localhost:19080/Contrast/api"
+    orgUuid = "1234-1234-1234-1234"
+    appName = "appNameHere"
+    serverName = "serverNameHere"
+    minSeverity = "Medium"
+}
 
 tasks {
     withType<Test> {
