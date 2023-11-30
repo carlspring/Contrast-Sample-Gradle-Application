@@ -1,0 +1,9 @@
+# Add MongoGB connection settings for Spring Data
+spring:
+  .data:
+    mongodb:
+      uri: mongodb://${mongodb.container.host}:${mongodb.container.port}
+      host: ${mongodb.container.host}
+      port: ${mongodb.container.port}
+      database: vehicles
+      auto-index-creation: true

@@ -169,7 +169,14 @@ public class VehicleController {
     @RequestMapping(value = "/makes", method = RequestMethod.GET)
     public ResponseEntity<List<Vehicle>> getVehicleMakes() {
 
-        List<Vehicle> makes = mongoTemplate.getCollection("vehicle").distinct("make");
+//        List<Vehicle> makes = mongoTemplate.getCollection("vehicle").distinct("make");
+
+        // Assuming you have a MongoTemplate instance injected or created
+
+        List<Vehicle> makes = mongoTemplate.query(Vehicle.class)
+                                          .distinct("make")
+                                          .as(Vehicle.class)
+                                          .all();
 
         return new ResponseEntity<>(makes, HttpStatus.OK);
     }
