@@ -1,29 +1,26 @@
 package com.vehiclempg;
 
-import com.vehiclempg.controllers.VehicleController;
 import com.vehiclempg.models.Vehicle;
 import com.vehiclempg.repositories.VehicleRepository;
+import io.restassured.RestAssured;
 import org.apache.http.HttpStatus;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.when;
+import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 
-@SpringBootTest(classes = ApplicationTest.class)
+@SpringBootTest(classes = ApplicationTest.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class VehicleControllerTests {
 
     @Autowired
@@ -35,10 +32,8 @@ public class VehicleControllerTests {
     @Value("${local.server.port:9950}")
     int port;
 
-    MockMvc mockMvc;
-
-    @Before
-    public void before(ApplicationContext context) {
+    @BeforeEach
+    public void before() {
         // this should be in @BeforeClass but vehicleRepository cannot be in a static method
         vehicleRepository.deleteAll();
 
@@ -51,10 +46,11 @@ public class VehicleControllerTests {
         vehicleRepository.saveAll(vehicles);
 
         // RestAssured setup
-        mockMvc = MockMvcBuilders.standaloneSetup(context.getBeansOfType(VehicleController.class)).build();
+        RestAssured.baseURI = "http://127.0.0.1";
+        RestAssured.port = port;
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         // remove all test vehicles
         // this should be in @AfterClass but vehicleRepository cannot be in a static method

@@ -50,7 +50,7 @@ dependencies {
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
 
     testImplementation("io.rest-assured:rest-assured")
-    testImplementation("io.rest-assured:spring-mock-mvc")
+    //testImplementation("io.rest-assured:spring-mock-mvc")
 }
 
 contrastConfiguration {
